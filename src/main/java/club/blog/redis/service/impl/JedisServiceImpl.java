@@ -4,7 +4,9 @@ import club.blog.redis.service.JedisService;
 import club.blog.redis.service.list.ListJedis;
 import club.blog.redis.service.list.ListJedisImpl;
 import club.blog.redis.service.map.MapJedis;
+import club.blog.redis.service.map.MapJedisImpl;
 import club.blog.redis.service.set.SetJedis;
+import club.blog.redis.service.set.SetJedisImppl;
 import club.blog.redis.service.string.StringJedis;
 import club.blog.redis.service.string.StringJedisImpl;
 import club.blog.redis.service.zset.ZSetJedis;
@@ -89,7 +91,8 @@ public class JedisServiceImpl implements JedisService {
      */
     @Override
     public MapJedis asMap() {
-        return null;
+        mapJedis = MapJedisImpl.getInstance(getJedis());
+        return mapJedis;
     }
 
     /**
@@ -98,7 +101,8 @@ public class JedisServiceImpl implements JedisService {
      */
     @Override
     public SetJedis asSet() {
-        return null;
+        setJedis = SetJedisImppl.getInstance(getJedis());
+        return setJedis;
     }
 
     /**
