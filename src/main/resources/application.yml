@@ -1,0 +1,14 @@
+#BlogRedis≈‰÷√
+club.dlblog.jedis:
+   host: 127.0.0.1
+   port: 6379
+   auth:
+   maxActive: 1024
+   maxIdle: 200
+   maxWait: 10000
+   timeOut: 10000
+   testOnBorrow: true
+   defaultDataBase: 0
+   clientName: dlblog-jedis-client
+   auto.destory.ms: 10000
+
