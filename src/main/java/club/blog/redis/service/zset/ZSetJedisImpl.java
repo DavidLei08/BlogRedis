@@ -43,6 +43,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             set =jedis.zrange(key, 0L, -1L);
         }
+        this.lastUseTime = LocalDateTime.now();
         return  set;
     }
 
@@ -52,6 +53,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             set =jedis.zrange(key, 0L, end);
         }
+        this.lastUseTime = LocalDateTime.now();
         return  set;
     }
 
@@ -61,6 +63,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             set =jedis.zrange(key, start, end);
         }
+        this.lastUseTime = LocalDateTime.now();
         return  set;
     }
 
@@ -70,6 +73,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
             Long lastScore = jedis.zcard(key);
             jedis.zadd(key, lastScore+1, value);
         }
+        this.lastUseTime = LocalDateTime.now();
     }
 
 
@@ -78,6 +82,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             jedis.zadd(key, score, value);
         }
+        this.lastUseTime = LocalDateTime.now();
     }
 
     @Override
@@ -85,6 +90,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             jedis.zrem(key, value);
         }
+        this.lastUseTime = LocalDateTime.now();
     }
 
     @Override
@@ -92,6 +98,7 @@ public class ZSetJedisImpl extends JedisReturnSource implements  ZSetJedis {
         if(jedis!=null){
             jedis.zrem(key, StringArrayUtil.toArray(values));
         }
+        this.lastUseTime = LocalDateTime.now();
     }
 
 

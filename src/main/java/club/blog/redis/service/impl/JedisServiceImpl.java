@@ -148,6 +148,20 @@ public class JedisServiceImpl implements JedisService {
                 jedisImpl.returnSource();
             }
         }
+
+        if(mapJedis instanceof MapJedisImpl){
+            MapJedisImpl jedisImpl =  (MapJedisImpl)mapJedis;
+            if(isNeedDestory(jedisImpl.getLastUseTime())) {
+                jedisImpl.returnSource();
+            }
+        }
+
+        if(zSetJedis instanceof  ZSetJedisImpl){
+            ZSetJedisImpl jedisImpl =  (ZSetJedisImpl)zSetJedis;
+            if(isNeedDestory(jedisImpl.getLastUseTime())) {
+                jedisImpl.returnSource();
+            }
+        }
     }
 
     private boolean isNeedDestory(LocalDateTime time){
