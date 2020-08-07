@@ -10,6 +10,7 @@ import club.blog.redis.service.set.SetJedisImppl;
 import club.blog.redis.service.string.StringJedis;
 import club.blog.redis.service.string.StringJedisImpl;
 import club.blog.redis.service.zset.ZSetJedis;
+import club.blog.redis.service.zset.ZSetJedisImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -23,6 +24,7 @@ import java.time.ZoneOffset;
 
 /**
  * jedis服务
+ * @author machenike
  */
 @EnableScheduling
 @Service
@@ -111,7 +113,8 @@ public class JedisServiceImpl implements JedisService {
      */
     @Override
     public ZSetJedis asZSet() {
-        return null;
+        zSetJedis = ZSetJedisImpl.getInstance(getJedis());
+        return zSetJedis;
     }
 
     /**
