@@ -35,40 +35,7 @@ club.dlblog.jedis:
    defaultDataBase: 0 #默认db
    clientName: dlblog-jedis-client #jedis客户端名
    auto.destory.ms: 10000 #自动回收时间ms
-```
-
-## 代码一览
-```yml
-----config
-|       JedisConfig.java
-|
-+---service
-|   |   JedisReturnSource.java
-|   |   JedisService.java
-|   |
-|   +---impl
-|   |       JedisServiceImpl.java
-|   |
-|   +---list
-|   |       ListJedis.java
-|   |       ListJedisImpl.java
-|   |
-|   +---map
-|   |       MapJedis.java
-|   |
-|   +---set
-|   |       SetJedis.java
-|   |
-|   +---string
-|   |       StringJedis.java
-|   |       StringJedisImpl.java
-|   |
-|   |---zset
-|           ZSetJedis.java
-|
-|---util
-        StringArrayUtil.java
-```     
+```   
 
 > jedisPool使用重量级锁保证线程安全，全局调用jedisPool生成jedis实例的地方并不多，并发不会太多，不会影响效率
 
@@ -84,6 +51,29 @@ club.dlblog.jedis:
 参照CAS的轻量锁，尝试取锁，取不到锁时内部会自旋等待下一次取锁
 
 ```java
+/**
+ * 分布式锁实现
+ * @author machenike
+ */
+@Service
+public class GobalLockImpl implements  GobalLock{
+
+    /**
+     * jedis实例管理服务
+     */
+    @Autowired
+    private JedisService jedisService;
+
+    /**
+     * jedis实例
+     */
+    private volatile Jedis jedis;
+
+    /**
+     * 线程安全锁信息存储用Map
+     */
+    private Map<String,Long> lockingMap = new ConcurrentHashMap<>();
+
     @Override
     public boolean lock(String key) {
         String lockKey = getLockKey(key);
@@ -121,6 +111,10 @@ club.dlblog.jedis:
             lockingMap.remove(lockKey);
         }
         return result;
+    }
+
+    private String getLockKey(String key){
+        return key+".lock";
     }
 ```
 
