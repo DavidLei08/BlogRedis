@@ -82,6 +82,7 @@ club.dlblog.jedis:
 		gobalLock.unlock("test01");
 ```
 参照CAS的轻量锁，尝试取锁，取不到锁时内部会自旋等待下一次取锁
+
 ```java
     @Override
     public boolean lock(String key) {
@@ -121,4 +122,11 @@ club.dlblog.jedis:
         }
         return result;
     }
-    ```
+```
+
+## 新增分布式锁注解
+```java
+    @JedisLock
+    public void update(@LockKey String key,String value) {
+    }
+```
