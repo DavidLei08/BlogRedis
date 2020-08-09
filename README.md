@@ -82,4 +82,43 @@ club.dlblog.jedis:
 		gobalLock.unlock("test01");
 ```
 参照CAS的轻量锁，尝试取锁，取不到锁时内部会自旋等待下一次取锁
+```java
+    @Override
+    public boolean lock(String key) {
+        String lockKey = getLockKey(key);
+        boolean result;
+        if(jedis==null){
+            jedis = jedisService.getJedis();
+        }
+        Long time;
+        //自旋
+        out:for(;;) {
+             time = System.currentTimeMillis();
+            //尝试取得锁
+            result = jedis.setnx(lockKey, time.toString()) > 0;
+            //锁取得成功
+            if(result){
+                //本地存储锁信息
+                lockingMap.put(lockKey,time);
+                break out;
+            }
+        }
+        return result;
+    }
 
+    @Override
+    public boolean unlock(String key) {
+        String lockKey = getLockKey(key);
+        boolean result;
+        if(jedis==null){
+            jedis = jedisService.getJedis();
+        }
+        //尝试释放锁
+        result = jedis.del(lockKey)>0;
+        //锁释放成功
+        if(result){
+            lockingMap.remove(lockKey);
+        }
+        return result;
+    }
+    ```
