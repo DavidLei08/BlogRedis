@@ -1,5 +1,6 @@
 package club.blog.redis.service.string;
 
+import club.blog.redis.lock.annotation.JedisLock;
 import club.blog.redis.service.JedisReturnSource;
 import redis.clients.jedis.Jedis;
 
@@ -30,6 +31,7 @@ public class StringJedisImpl  extends JedisReturnSource implements StringJedis {
         this.lastUseTime = LocalDateTime.now();
     }
 
+    @JedisLock
     @Override
     public void set(String key, String value) {
         if(jedis!=null&&jedis.isConnected()){
@@ -60,6 +62,4 @@ public class StringJedisImpl  extends JedisReturnSource implements StringJedis {
             this.lastUseTime = LocalDateTime.now();
         }
     }
-
-
 }

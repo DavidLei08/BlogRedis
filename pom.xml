@@ -23,6 +23,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
 		<!-- 引入Jredis-->
 		<dependency>
 			<groupId>redis.clients</groupId>
@@ -41,7 +45,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>13.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

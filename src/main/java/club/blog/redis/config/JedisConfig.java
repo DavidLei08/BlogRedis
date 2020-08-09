@@ -1,11 +1,13 @@
 package club.blog.redis.config;
 
 
+import club.blog.redis.lock.interceptor.JedisLockInterceptor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -75,6 +77,7 @@ public class JedisConfig {
      */
     @Value("${club.dlblog.jedis.clientName}")
     private String  clientName;
+
 
     /**
      * 初始jedisPool配置
