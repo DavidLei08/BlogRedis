@@ -70,4 +70,16 @@ club.dlblog.jedis:
         StringArrayUtil.java
 ```     
 
-后续将继续更新，保证操作便捷的同时保证运行效率，同时将会考虑线程安全的问题
+> jedisPool使用重量级锁保证线程安全，全局调用jedisPool生成jedis实例的地方并不多，并发不会太多，不会影响效率
+
+## 新功能实现
+基于redis源生指令的全局分布式锁
+```java
+                //获取锁
+		gobalLock.lock("test01");
+		jedisService.asString().set("test01", "test01String");
+		//释放锁
+		gobalLock.unlock("test01");
+```
+参照CAS的轻量锁，尝试取锁，取不到锁时内部会自旋等待下一次取锁
+
