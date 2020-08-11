@@ -35,39 +35,92 @@ club.dlblog.jedis:
    defaultDataBase: 0 #默认db
    clientName: dlblog-jedis-client #jedis客户端名
    auto.destory.ms: 10000 #自动回收时间ms
+```   
+
+> jedisPool使用重量级锁保证线程安全，全局调用jedisPool生成jedis实例的地方并不多，并发不会太多，不会影响效率
+
+## 新功能实现
+基于redis源生指令的全局分布式锁
+```java
+                //获取锁
+		gobalLock.lock("test01");
+		jedisService.asString().set("test01", "test01String");
+		//释放锁
+		gobalLock.unlock("test01");
+```
+参照CAS的轻量锁，尝试取锁，取不到锁时内部会自旋等待下一次取锁
+
+```java
+/**
+ * 分布式锁实现
+ * @author machenike
+ */
+@Service
+public class GobalLockImpl implements  GobalLock{
+
+    /**
+     * jedis实例管理服务
+     */
+    @Autowired
+    private JedisService jedisService;
+
+    /**
+     * jedis实例
+     */
+    private volatile Jedis jedis;
+
+    /**
+     * 线程安全锁信息存储用Map
+     */
+    private Map<String,Long> lockingMap = new ConcurrentHashMap<>();
+
+    @Override
+    public boolean lock(String key) {
+        String lockKey = getLockKey(key);
+        boolean result;
+        if(jedis==null){
+            jedis = jedisService.getJedis();
+        }
+        Long time;
+        //自旋
+        out:for(;;) {
+             time = System.currentTimeMillis();
+            //尝试取得锁
+            result = jedis.setnx(lockKey, time.toString()) > 0;
+            //锁取得成功
+            if(result){
+                //本地存储锁信息
+                lockingMap.put(lockKey,time);
+                break out;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public boolean unlock(String key) {
+        String lockKey = getLockKey(key);
+        boolean result;
+        if(jedis==null){
+            jedis = jedisService.getJedis();
+        }
+        //尝试释放锁
+        result = jedis.del(lockKey)>0;
+        //锁释放成功
+        if(result){
+            lockingMap.remove(lockKey);
+        }
+        return result;
+    }
+
+    private String getLockKey(String key){
+        return key+".lock";
+    }
 ```
 
-## 代码一览
-```yml
-----config
-|       JedisConfig.java
-|
-+---service
-|   |   JedisReturnSource.java
-|   |   JedisService.java
-|   |
-|   +---impl
-|   |       JedisServiceImpl.java
-|   |
-|   +---list
-|   |       ListJedis.java
-|   |       ListJedisImpl.java
-|   |
-|   +---map
-|   |       MapJedis.java
-|   |
-|   +---set
-|   |       SetJedis.java
-|   |
-|   +---string
-|   |       StringJedis.java
-|   |       StringJedisImpl.java
-|   |
-|   |---zset
-|           ZSetJedis.java
-|
-|---util
-        StringArrayUtil.java
-```     
-
-后续将继续更新，保证操作便捷的同时保证运行效率，同时将会考虑线程安全的问题
+## 新增分布式锁注解
+```java
+    @JedisLock
+    public void update(@LockKey String key,String value) {
+    }
+```
