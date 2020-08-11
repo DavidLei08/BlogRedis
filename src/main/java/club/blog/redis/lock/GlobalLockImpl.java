@@ -5,25 +5,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
 /**
  * 分布式锁实现
  * @author machenike
  */
 @Service
-public class GobalLockImpl implements  GobalLock{
+public class GlobalLockImpl implements  GlobalLock{
 
     /**
-     *
+     * jedis实例管理服务
      */
     @Autowired
     private JedisService jedisService;
 
+    /**
+     * jedis实例
+     */
     private volatile Jedis jedis;
 
-    private Map<String,Long> lockingMap = new ConcurrentHashMap<>();
+    /**
+     * threadLocal当前线程持有
+     */
+    private volatile ThreadLocal<String> threadLocal = new ThreadLocal<>();
+
+
 
     @Override
     public boolean lock(String key) {
@@ -32,16 +39,17 @@ public class GobalLockImpl implements  GobalLock{
         if(jedis==null){
             jedis = jedisService.getJedis();
         }
-        Long time;
+        String lockVersion = getLockVersion();
+        threadLocal.set(lockVersion);
         //自旋
         out:for(;;) {
-             time = System.currentTimeMillis();
             //尝试取得锁
-            result = jedis.setnx(lockKey, time.toString()) > 0;
+            result = jedis.setnx(lockKey, lockVersion)>0;
             //锁取得成功
             if(result){
+                //设置过期时间，防止死锁
+                jedis.expire(lockKey, 30);
                 //本地存储锁信息
-                lockingMap.put(lockKey,time);
                 break out;
             }
         }
@@ -55,17 +63,25 @@ public class GobalLockImpl implements  GobalLock{
         if(jedis==null){
             jedis = jedisService.getJedis();
         }
-        //尝试释放锁
-        result = jedis.del(lockKey)>0;
-        //锁释放成功
-        if(result){
-            lockingMap.remove(lockKey);
+        //判断锁是否为当前线程所持有
+        if(jedis.get(lockKey).equals(threadLocal.get())){
+            //尝试释放锁
+            result = jedis.del(lockKey)>0;
+            //锁释放成功
+        } else {
+            result = false;
         }
         return result;
     }
 
     private String getLockKey(String key){
-        return key+".lock";
+        return key+".global.lock";
+    }
+
+    private String getLockVersion(){
+        String uuid = UUID.randomUUID().toString().replaceAll("_", "");
+        uuid+=Thread.currentThread().getId();
+        return uuid;
     }
 
 }

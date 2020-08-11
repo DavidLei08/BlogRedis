@@ -130,11 +130,10 @@ public class ListJedisImpl extends JedisReturnSource implements  ListJedis {
     }
 
     @Override
-    public void del(String key) {
+    public void del( String key) {
         if(jedis!=null) {
             jedis.del(key);
             this.lastUseTime = LocalDateTime.now();
         }
     }
-
 }

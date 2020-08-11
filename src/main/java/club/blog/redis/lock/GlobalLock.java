@@ -1,6 +1,6 @@
 package club.blog.redis.lock;
 
-public interface GobalLock {
+public interface GlobalLock {
 
     /**
      * 加锁
