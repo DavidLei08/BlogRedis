@@ -1,6 +1,6 @@
 package club.blog.redis;
 
-import club.blog.redis.lock.GobalLock;
+import club.blog.redis.lock.GlobalLock;
 import club.blog.redis.service.JedisService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ class BlogRedisApplicationTests {
 	JedisService jedisService;
 
 	@Autowired
-	GobalLock gobalLock;
+	GlobalLock globalLock;
 
 	@Test
 	void contextLoads() {
-		gobalLock.lock("test01");
+		globalLock.lock("test01");
 		jedisService.asString().set("test01", "test01String");
-		gobalLock.unlock("test01");
+		globalLock.unlock("test01");
 
 		jedisService.asString().get("test01");
 		jedisService.asList().lpush("test02", "testList01");

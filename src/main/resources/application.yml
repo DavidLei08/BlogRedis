@@ -1,14 +1,15 @@
-#BlogRedisÅäÖÃ
+#BlogRedisï¿½ï¿½ï¿½ï¿½
 club.dlblog.jedis:
-   host: 127.0.0.1
+   host: 172.31.242.57
    port: 6379
-   auth:
+   auth: Icd201809!78
    maxActive: 1024
    maxIdle: 200
    maxWait: 10000
    timeOut: 10000
    testOnBorrow: true
-   defaultDataBase: 0
+   defaultDataBase: 3
    clientName: dlblog-jedis-client
    auto.destory.ms: 10000
+   lock.ex: 300
 
